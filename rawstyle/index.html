@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RAWStyle Studio</title>
+<style>
+  :root { color-scheme: light; --ink:#171717; --soft:#555; --quiet:#858585; --line:#e5e5e5; --paper:#fafafa; --white:#fff; }
+  *, *::before, *::after { box-sizing:border-box; }
+  body { background:var(--paper); color:var(--ink); margin:0; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif; -webkit-font-smoothing:antialiased; }
+  button,input,select { font:inherit; }
+  button { cursor:pointer; }
+  button:disabled { opacity:.38; cursor:not-allowed; }
+  .wrap { width:min(980px,calc(100% - 64px)); margin:0 auto 120px; }
+  header { height:92px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #d8d8d8; }
+  .brand { display:flex; align-items:baseline; gap:16px; white-space:nowrap; }
+  .brand b { font-size:19px; font-weight:760; letter-spacing:-.09em; }
+  .brand b i { font-style:normal; font-weight:300; }
+  .micro { color:var(--quiet); letter-spacing:.17em; font-weight:650; font-size:9px; text-transform:uppercase; }
+  .local { font-size:11px; color:var(--soft); display:flex; align-items:center; gap:10px; letter-spacing:.03em; }
+  .dot { width:6px; height:6px; background:#262626; border-radius:50%; }
+  .hero { padding:75px 0 67px; }
+  .hero h1 { font-weight:530; font-size:clamp(42px,5.8vw,70px); letter-spacing:-.075em; line-height:1.04; margin:0; }
+  .hero h1 span { color:#989898; }
+  .hero p { font-size:15px; line-height:1.9; max-width:560px; margin:22px 0 0; color:var(--soft); }
+  .step { border-top:1px solid #dedede; padding:34px 0 45px; display:grid; grid-template-columns:140px minmax(0,1fr); gap:24px; }
+  .step .index { font-size:11px; color:#888; font-weight:650; letter-spacing:.16em; padding-top:7px; }
+  .step-content { max-width:720px; }
+  h2 { font-weight:550; font-size:28px; letter-spacing:-.049em; line-height:1.1; margin:0 0 10px; }
+  .sub { font-size:13px; color:var(--soft); line-height:1.7; margin:0 0 27px; max-width:580px; }
+  .fields { display:flex; flex-direction:column; gap:11px; margin:0 0 22px; }
+  .field { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:12px 14px 12px 16px; background:#fff; border:1px solid var(--line); min-height:70px; }
+  .field-name { color:#858585; font-size:10px; text-transform:uppercase; letter-spacing:.13em; font-weight:650; margin-bottom:6px; }
+  .path { font-size:13px; color:#222; font-weight:500; overflow-wrap:anywhere; }
+  .path.empty { font-weight:400; color:#a2a2a2; }
+  .pick { flex:0 0 auto; background:#fff; border:1px solid #d5d5d5; padding:10px 16px; font-size:11px; font-weight:650; color:#333; transition:background .15s; }
+  .pick:hover { background:#f3f3f3; }
+  .actionbar { display:flex; flex-wrap:wrap; align-items:center; gap:17px; }
+  .primary { border:1px solid var(--ink); padding:15px 24px; background:var(--ink); color:white; font-size:12px; font-weight:680; letter-spacing:.01em; min-width:154px; }
+  .primary:hover:not(:disabled) { background:#444; }
+  .minor { color:#878787; font-size:11px; line-height:1.5; }
+  .quiet-btn { border:0; padding:8px 0; background:transparent; font-size:12px; font-weight:600; color:#262626; border-bottom:1px solid #888; }
+  .status { background:#f0f0f0; border:1px solid #e2e2e2; padding:18px 21px; display:none; margin:2px 0 0; }
+  .status.show { display:block; position:sticky; top:10px; z-index:3; box-shadow:0 7px 25px rgba(0,0,0,.04); margin-bottom:13px; }
+  .status.error { border-color:#b0b0b0; }
+  .status-head { display:flex; justify-content:space-between; gap:20px; align-items:center; font-size:12px; }
+  #status-text { color:#282828; line-height:1.5; }
+  #status-count { font-variant-numeric:tabular-nums; color:#6d6d6d; white-space:nowrap; }
+  .progress { height:2px; width:100%; background:#dadada; margin-top:17px; overflow:hidden; }
+  #progress-fill { height:2px; background:#1f1f1f; width:0; transition:width .2s; }
+  .details { padding:13px 0; font-size:12px; line-height:1.8; color:var(--soft); }
+  .details b { color:#272727; font-weight:550; }
+  .plugin { color:#555; font-size:13px; line-height:1.85; }
+  .plugin b { color:#171717; font-weight:620; }
+  .plugin ol { margin:5px 0 17px; padding-left:20px; }
+  .results { display:none; margin-top:23px; }
+  .results.show { display:block; }
+  .results h3 { letter-spacing:.08em; text-transform:uppercase; font-size:10px; color:#888; margin:0 0 10px; }
+  .results table { width:100%; border-collapse:collapse; font-size:12px; }
+  .results th { text-transform:uppercase; letter-spacing:.08em; font-size:10px; font-weight:630; text-align:right; color:#8a8a8a; border-bottom:1px solid #ddd; padding:11px 7px; }
+  .results td { text-align:right; padding:12px 7px; font-variant-numeric:tabular-nums; border-bottom:1px solid #e7e7e7; }
+  .results th:first-child, .results td:first-child { text-align:left; }
+  details.panel { padding:25px 0; border-top:1px solid #dedede; margin-top:12px; }
+  details.panel summary { font-size:13px; font-weight:560; cursor:pointer; }
+  .perf { display:flex; flex-wrap:wrap; gap:20px; padding:22px 0 3px; }
+  label { font-size:12px; color:#666; }
+  select { display:block; background:white; border:1px solid #ddd; color:#222; padding:10px 30px 10px 10px; margin-top:8px; min-width:135px; }
+  .path-entry { margin-top:16px; display:flex; gap:8px; }
+  .path-entry input { flex:1; min-width:0; padding:9px 10px; border:1px solid #ddd; font-size:12px; }
+  .path-entry select { min-width:120px; margin:0; }
+  .path-entry button { border:1px solid #222; background:#222; color:white; padding:10px 13px; font-size:12px; }
+  .footer { border-top:1px solid #dedede; padding-top:21px; color:#8c8c8c; font-size:11px; line-height:1.7; display:flex; justify-content:space-between; gap:25px; }
+  .pill { color:#4c4c4c; border:1px solid #dedede; padding:8px 11px; font-size:10px; letter-spacing:.08em; text-transform:uppercase; }
+  .availability { font-size:11px; color:#838383; }
+  @media (max-width:690px) { .wrap { width:calc(100% - 36px); margin-bottom:70px; } header { height:75px; } .brand { gap:8px; } .hero { padding:49px 0; } .step { display:block; padding:27px 0 38px; } .step .index { margin:0 0 19px; padding:0; } h2 { font-size:25px; } .field { align-items:flex-start; } .footer { flex-direction:column; } .micro { display:none; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <div class="brand"><b>RAW<i>STYLE</i></b><span class="micro">Studio / 0.2</span></div>
+    <div class="local"><span class="dot"></span> Running locally</div>
+  </header>
+  <section class="hero">
+    <h1>RAWStyle Studio</h1>
+    <p>Train a model using original RAW files and Lightroom Classic catalog adjustments, then predict adjustments for new RAW files.</p>
+  </section>
+  <div class="status" id="status" role="status" aria-live="polite"><div class="status-head"><div id="status-text">Ready.</div><div id="status-count"></div></div><div class="progress"><div id="progress-fill"></div></div></div>
+  <section class="step" aria-labelledby="train-title">
+    <div class="index">01 / TRAIN</div>
+    <div class="step-content">
+      <h2 id="train-title">Train a model</h2>
+      <p class="sub">Select a Lightroom Classic catalog and its original RAW files. The model learns from the catalog's adjustments, including Temperature and Tint.</p>
+      <div class="fields">
+        <div class="field"><div><div class="field-name">Lightroom catalog</div><div class="path empty" id="catalog-path">Choose a .lrcat file</div></div><button class="pick" data-pick="catalog">Browse</button></div>
+        <div class="field"><div><div class="field-name">Original RAW collection</div><div class="path empty" id="training-folder-path">Choose the original RAW photo folder</div></div><button class="pick" data-pick="training_folder">Browse</button></div>
+      </div>
+      <div class="actionbar"><button class="primary" id="train-btn" disabled>Train model</button><span class="minor" id="trained-summary">At least 20 matching RAW/edit pairs required.</span></div>
+      <div class="details" id="validation"></div>
+    </div>
+  </section>
+  <section class="step" aria-labelledby="predict-title">
+    <div class="index">02 / PREDICT</div>
+    <div class="step-content">
+      <h2 id="predict-title">Predict adjustments</h2>
+      <p class="sub">Select a folder of RAW files to generate a predictions file using the trained model.</p>
+      <div class="fields"><div class="field"><div><div class="field-name">New shoot</div><div class="path empty" id="new-shoot-path">Choose your RAW images</div></div><button class="pick" data-pick="new_shoot">Browse</button></div></div>
+      <div class="actionbar"><button class="primary" id="predict-btn" disabled>Predict adjustments</button></div>
+      <div class="results" id="results">
+        <h3>Sample predictions</h3>
+        <table><thead><tr><th>RAW file</th><th>Kelvin</th><th>Tint</th><th>Exposure</th></tr></thead><tbody id="rows"></tbody></table>
+      </div>
+    </div>
+  </section>
+  <section class="step" aria-labelledby="apply-title">
+    <div class="index">03 / APPLY</div>
+    <div class="step-content">
+      <h2 id="apply-title">Apply in Lightroom</h2>
+      <p class="sub">Apply the predictions in Lightroom Classic using the bundled plug-in.</p>
+      <div class="plugin">
+        <ol>
+          <li>Once: In Lightroom Classic, <b>File → Plug-in Manager → Add</b> the bundled <b>RAWStyle Lightroom.lrplugin</b> folder.</li>
+          <li>Import your new RAW shoot and select the photographs to edit.</li>
+          <li>Choose <b>Library → Plug-in Extras → Apply RAWStyle Predictions…</b> and select the predictions file.</li>
+        </ol>
+      </div>
+      <div class="actionbar"><button class="primary" id="reveal-btn" disabled>Show predictions in Finder ↗</button><span class="minor" id="output-label">No predictions generated yet.</span></div>
+    </div>
+  </section>
+  
+  <details class="panel"><summary>Performance & local paths</summary>
+    <div class="perf">
+      <label>CPU worker processes<select id="workers"><option value="1">1 process</option><option value="2">2 processes</option><option value="3" selected>3 processes</option><option value="4">4 processes</option><option value="6">6 processes</option></select></label>
+      <label>Shared RAM buffer<select id="ram"><option value="128">128 MB</option><option value="256">256 MB</option><option value="384" selected>384 MB</option><option value="512">512 MB</option><option value="768">768 MB</option><option value="1024">1 GB</option></select></label>
+    </div>
+    <p class="minor">These settings control the number of RAW processing workers and the shared memory buffer size.</p>
+    <p class="minor">If the Finder dialog is unavailable, enter an absolute local path:</p>
+    <div class="path-entry"><select id="manual-kind"><option value="catalog">Catalog</option><option value="training_folder">Training RAWs</option><option value="new_shoot">New shoot</option></select><input id="manual-path" placeholder="/Volumes/My Drive/Photos" aria-label="Local file or folder path"><button id="manual-apply">Use path</button></div>
+  </details>
+  <footer class="footer"><span>RAWStyle Studio / 0.2</span></footer>
+</main>
+<script>
+const SESSION = '__RAWSTYLE_SESSION__';
+const $ = id => document.getElementById(id);
+let busy = false;
+let previousOutput = '';
+const names = {catalog:'catalog-path',training_folder:'training-folder-path',new_shoot:'new-shoot-path'};
+async function send(route, data={}) {
+  const resp = await fetch('/api/'+route, {method:'POST',headers:{'Content-Type':'application/json','X-RAWStyle-Session':SESSION}, body:JSON.stringify(data)});
+  const result = await resp.json();
+  if (!resp.ok) throw new Error(result.error || 'Something went wrong.');
+  return result;
+}
+function basename(s) { return s ? s.split('/').filter(Boolean).pop() : ''; }
+function briefPath(s) { return s && s.length>64 ? '…' + s.slice(-63) : s; }
+function setText(id,text) { $(id).textContent=text; }
+function showError(error) {
+  $('status').className='status show error';
+  setText('status-text',String(error.message||error));
+  setText('status-count','');
+  $('progress-fill').style.width='0%';
+}
+for (const button of document.querySelectorAll('[data-pick]')) {
+  button.addEventListener('click',async ()=>{
+    try {await send('choose',{kind:button.dataset.pick}); await refresh();}
+    catch(e){showError(e)}
+  });
+}
+$('manual-apply').addEventListener('click',async()=>{
+  try {await send('select',{kind:$('manual-kind').value,path:$('manual-path').value}); await refresh(); }
+  catch(e){showError(e)}
+});
+async function run(mode) {
+  try {
+    await send('run',{mode,workers:Number($('workers').value),ram_mb:Number($('ram').value)});
+    await refresh();
+  } catch(e) {showError(e)}
+}
+$('train-btn').addEventListener('click',()=>run('train'));
+$('predict-btn').addEventListener('click',()=>run('predict'));
+$('reveal-btn').addEventListener('click',async()=>{
+  try {await send('reveal');} catch(e){showError(e)}
+});
+function renderSamples(samples) {
+  const target=$('rows'); target.replaceChildren();
+  for (const item of samples) {
+    const row=document.createElement('tr');
+    const values=[item.file,item.temp != null?Number(item.temp).toLocaleString('en-GB')+' K':'–',item.tint ?? '–',item.exposure ?? '–'];
+    for (const value of values) {const td=document.createElement('td');td.textContent=value;row.append(td)}
+    target.append(row);
+  }
+}
+function display(s) {
+  busy=!!s.busy;
+  for (const [key,id] of Object.entries(names)) {
+    const el=$(id),value=s[key]||'';
+    el.textContent = value ? briefPath(value) : ({catalog:'Choose a .lrcat file',training_folder:'Choose the original RAW photo folder',new_shoot:'Choose your RAW images'}[key]);
+    el.title = value;
+    el.classList.toggle('empty',!value);
+  }
+  $('train-btn').disabled = busy || !(s.catalog&&s.training_folder);
+  $('predict-btn').disabled = busy || !(s.model_ready&&s.new_shoot);
+  $('reveal-btn').disabled = busy || !s.output;
+  for (const btn of document.querySelectorAll('[data-pick]')) btn.disabled=busy;
+  if(s.model_ready) setText('trained-summary',s.trained_count ? 'Trained on '+s.trained_count+' RAW/edit pairs.' : 'A trained model is available.');
+  else if(s.matched_count != null) setText('trained-summary',s.matched_count+' matched RAW/edit pairs. At least 20 required.');
+  else setText('trained-summary','At least 20 matching RAW/edit pairs required.');
+  let validations=[];
+  if(s.validation && s.validation.Temperature!=null) validations.push('Mean absolute error: Temperature '+s.validation.Temperature+' K');
+  if(s.validation && s.validation.Tint!=null) validations.push('Tint '+s.validation.Tint);
+  setText('validation',validations.join(' · '));
+  const showStatus=s.busy||s.error||s.done||s.model_ready;
+  $('status').className='status'+(showStatus?' show':'')+(s.error?' error':'');
+  setText('status-text',s.error || s.message || 'Ready.');
+  setText('status-count',s.total>0?s.done+' / '+s.total:'');
+  $('progress-fill').style.width=(s.total>0?Math.round(100*s.done/s.total):(s.busy?2:0))+'%';
+  setText('output-label',s.output ? briefPath(s.output) : 'No predictions generated yet.');
+  $('output-label').title=s.output||'';
+  $('results').classList.toggle('show',!!(s.output&&s.samples&&s.samples.length));
+  if(s.output!==previousOutput) { renderSamples(s.samples||[]); previousOutput=s.output; }
+}
+let polling=false;
+async function refresh(){
+  if(polling)return;
+  polling=true;
+  try{const result=await fetch('/api/status',{cache:'no-store'});if(result.ok)display(await result.json());}
+  catch(e){showError(e)}
+  finally{polling=false}
+}
+refresh();
+setInterval(refresh,900);
+</script>
+</body>
+</html>
